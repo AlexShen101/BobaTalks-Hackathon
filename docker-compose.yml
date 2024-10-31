@@ -1,0 +1,37 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        ENV: ${ENV}
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./backend/.env.${ENV}
+    environment:
+      - ENV=${ENV}
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV: ${ENV}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    env_file:
+      - ./.env.${ENV}
+    environment:
+      - ENV=${ENV}
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

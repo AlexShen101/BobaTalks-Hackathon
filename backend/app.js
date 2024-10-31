@@ -9,6 +9,8 @@ import session from 'express-session';
 import MongoStore from "connect-mongo";
 import mongoose from 'mongoose';
 
+console.log(`env is ${process.env.ENV}`)
+
 const app = express()
 app.use(cors({
   origin: process.env.CLIENT_URL,
