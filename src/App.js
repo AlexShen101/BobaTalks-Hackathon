@@ -22,9 +22,6 @@ import theme from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
 
 const App = () => {
-  console.log(process.env);
-  console.log('ENV:', process.env.REACT_APP_ENV);
-
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
