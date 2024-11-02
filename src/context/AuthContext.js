@@ -65,9 +65,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');  // Remove from local storage or cookie
+  const logout = async () => {
+    try {
+    const response = await axios.post(
+      `${process.env.REACT_APP_API_ENDPOINT}/api/auth/logout`,
+      {},  // empty body
+      { withCredentials: true }
+    );
+
+    if (response.status === 200) {
+      setUser(null);
+    }
+  } catch (error) {
+    console.error('Logout error:', error.response ? error.response.data : error.message);
+  }
   };
 
   return (

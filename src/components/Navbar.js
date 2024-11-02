@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
@@ -14,6 +14,11 @@ import ListItemText from '@mui/material/ListItemText';
 import IconButton from '@mui/material/IconButton';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '@mui/material/styles';
@@ -34,10 +39,35 @@ const navLinks = [
 function Navbar() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Adjust breakpoint as needed
+  const navigate = useNavigate();
 
-  const { user } = useAuth();
- 
+  const { user, logout } = useAuth();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      handleCloseMenu();
+      navigate('/');
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const handleDrawerToggle = () => {
     setDrawerOpen((prevState) => !prevState);
@@ -76,87 +106,129 @@ function Navbar() {
   );
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="primary"> {/* Uses primary color from theme */}
-        <Toolbar>
-          {/* Logo or Brand Name */}
-          <Typography
-            variant="h6"
-            component={Link}
-            to="/"
-            sx={{
-              textDecoration: 'none',
-              color: 'inherit',
-              flexGrow: 1,
-              fontFamily: 'Poppins, sans-serif', // Ensures typography uses Poppins
-            }}
-          >
-            BobaShare
-          </Typography>
+    <>
+      <Box sx={{ flexGrow: 1 }}>
+        <AppBar position="static" color="primary"> {/* Uses primary color from theme */}
+          <Toolbar>
+            {/* Logo or Brand Name */}
+            <Typography
+              variant="h6"
+              component={Link}
+              to="/"
+              sx={{
+                textDecoration: 'none',
+                color: 'inherit',
+                flexGrow: 1,
+                fontFamily: 'Poppins, sans-serif', // Ensures typography uses Poppins
+              }}
+            >
+              BobaShare
+            </Typography>
 
-          {isMobile ? (
-            // Mobile View: Hamburger Menu
-            <>
-              <IconButton
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-                onClick={handleDrawerToggle}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Drawer
-                anchor="right"
-                open={drawerOpen}
-                onClose={handleDrawerToggle}
-              >
-                {drawer}
-              </Drawer>
-            </>
-          ) : (
-            // Desktop View: Inline Links
-            user ? (
-              navLinks.map((item) => (
-                <Button
-                  key={item.title}
-                  color="inherit"
-                  component={Link}
-                  to={item.path}
-                  sx={{
-                    fontFamily: 'Poppins, sans-serif',
-                  }}
-                >
-                  {item.title}
-                </Button>
-              ))
-            ) : (
+            {isMobile ? (
+              // Mobile View: Hamburger Menu
               <>
-                <Button
+                <IconButton
+                  edge="start"
                   color="inherit"
-                  component={Link}
-                  to="/signin"
-                  sx={{
-                    fontFamily: 'Poppins, sans-serif',
-                  }}
+                  aria-label="menu"
+                  onClick={handleDrawerToggle}
                 >
-                  Sign In
-                </Button>
-                <Button
-                  color="inherit"
-                  component={Link}
-                  to="/signup"
-                  sx={{
-                    fontFamily: 'Poppins, sans-serif',
-                  }}
+                  <MenuIcon />
+                </IconButton>
+                <Drawer
+                  anchor="right"
+                  open={drawerOpen}
+                  onClose={handleDrawerToggle}
                 >
-                  Sign Up
-                </Button>
+                  {drawer}
+                </Drawer>
               </>
-            )
-          )}
-        </Toolbar>
-      </AppBar>
-    </Box>
+            ) : (
+              // Desktop View: Inline Links
+              user ? (
+                navLinks.map((item) => (
+                  <Button
+                    key={item.title}
+                    color="inherit"
+                    component={Link}
+                    to={item.path}
+                    sx={{
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    {item.title}
+                  </Button>
+                ))
+              ) : (
+                <>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/signin"
+                    sx={{
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    color="inherit"
+                    component={Link}
+                    to="/signup"
+                    sx={{
+                      fontFamily: 'Poppins, sans-serif',
+                    }}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )
+            )}
+
+            {/* Add this user menu section */}
+            {user && (
+              <div>
+                <IconButton
+                  size="large"
+                  onClick={handleMenu}
+                  color="inherit"
+                >
+                  <AccountCircle />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={handleCloseMenu}
+                >
+                  <MenuItem component={Link} to="/account-settings">
+                    Account Settings
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>
+                    Logout
+                  </MenuItem>
+                </Menu>
+              </div>
+            )}
+          </Toolbar>
+        </AppBar>
+      </Box>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={4000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity="success"
+          sx={{ width: '100%' }}
+        >
+          Successfully logged out
+        </Alert>
+      </Snackbar>
+    </>
   );
 }
 
