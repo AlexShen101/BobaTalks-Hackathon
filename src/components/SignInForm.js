@@ -5,15 +5,18 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import '../styles/style.css';
 import { useAuth } from '../context/AuthContext';
+import { useAlert } from '../context/AlertContext';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
 
+import theme from '../theme.js';
 
 export default function SignInForm() {
-  const theme = useTheme();
-
   const { login } = useAuth();
+  const { showAlert } = useAlert();
   const [formData, setFormData] = useState({ email: '', password: '' });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -23,12 +26,16 @@ export default function SignInForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
+
     try {
       await login(formData);
+      showAlert('Login successful', 'success');
       navigate('/');
     } catch (error) {
-      // Add error handling logic here, like displaying an error message
-      console.error('Login failed:', error);
+      showAlert(error.message || 'Failed to login', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,40 +60,56 @@ export default function SignInForm() {
   };
 
   return (
-    <Container className="width-no-space" disableGutters sx={containerStyles}>
-      <span className="circle"></span>
-      <Typography
-        sx={{ fontFamily: 'Poppins', padding: 2, color: '#021944', fontWeight: 'bold' }}
-        variant="h4"
-        component="div"
-      >
-        Enter account details
-      </Typography>
-      <form onSubmit={handleSubmit}>
-        <TextField
-          sx={textFieldStyles}
-          id="email"
-          label="Email Address"
-          name="email"
-          type="email"
-          variant="outlined"
-          value={formData.email}
-          onChange={handleInputChange}
-        />
-        <TextField
-          sx={textFieldStyles}
-          id="password"
-          label="Password"
-          name="password"
-          type="password"
-          variant="outlined"
-          value={formData.password}
-          onChange={handleInputChange}
-        />
-        <Button sx={{ mt: 1 }} color="primary" variant="outlined" type="submit">
-          Login
-        </Button>
-      </form>
-    </Container>
+    <ThemeProvider theme={theme}>
+      <Container className="width-no-space" disableGutters sx={containerStyles}>
+        <span className="circle"></span>
+        <Typography
+          sx={{ fontFamily: 'Poppins', padding: 2, color: '#021944', fontWeight: 'bold' }}
+          variant="h4"
+          component="div"
+        >
+          Enter account details
+        </Typography>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            sx={textFieldStyles}
+            id="email"
+            label="Email Address"
+            name="email"
+            type="email"
+            variant="outlined"
+            value={formData.email}
+            onChange={handleInputChange}
+            disabled={loading}
+          />
+          <TextField
+            sx={textFieldStyles}
+            id="password"
+            label="Password"
+            name="password"
+            type="password"
+            variant="outlined"
+            value={formData.password}
+            onChange={handleInputChange}
+            disabled={loading}
+          />
+          <Button
+            sx={{ mt: 1, width: 500, height: 50 }}
+            variant="outlined"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <CircularProgress size={24} sx={{ mr: 1 }} />
+                Signing in...
+              </>
+            ) : (
+              'Sign In'
+            )}
+          </Button>
+        </form>
+      </Container>
+    </ThemeProvider>
   );
 }

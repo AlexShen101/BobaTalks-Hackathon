@@ -4,11 +4,9 @@ import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '../context/AuthContext';
+import { useAlert } from '../context/AlertContext';
 import { useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
-import '../styles/style.css';
-import Alert from '@mui/material/Alert';
-import Snackbar from '@mui/material/Snackbar';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import theme from '../theme.js';
@@ -18,17 +16,14 @@ export default function SignUpForm() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
   const { signup } = useAuth();
+  const { showAlert } = useAlert();
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
-
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      showAlert("Passwords do not match", "error");
       return;
     }
 
@@ -36,12 +31,10 @@ export default function SignUpForm() {
     try {
       setLoading(true);
       await signup({ email, password });
-      setSuccess(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 1500); // Give time for success message to show
+      showAlert('Account created successfully', 'success');
+      navigate('/');
     } catch (err) {
-      setError(err.message || 'Failed to create account');
+      showAlert(err.message || 'Failed to create account');
     } finally {
       setLoading(false);
     }
@@ -82,6 +75,7 @@ export default function SignUpForm() {
             id="outlined-basic"
             label="Full Name"
             variant="outlined"
+            disabled={loading}
           />
           <TextField
             value={email}
@@ -126,16 +120,22 @@ export default function SignUpForm() {
             variant="outlined"
           />
           <Button
-            sx={{ mt: 1 }}
+            sx={{ mt: 1, width: 500, height: 50 }}
             onClick={handleSubmit}
-            color="custom"
             variant="outlined"
             href="/SignIn"
+            disabled={loading}
           >
-            {" "}
-            Register{" "}
+            {loading ? (
+              <>
+                <CircularProgress size={24} sx={{ mr: 1 }} />
+                Registering...
+              </>
+            ) : (
+              'Register'
+            )}
           </Button>
-        </form>;
+        </form>
 
 
       </Container>

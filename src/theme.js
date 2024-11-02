@@ -1,4 +1,4 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, duration } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -19,6 +19,15 @@ const theme = createTheme({
           borderRadius: 8,
           padding: '12px 24px',
           minWidth: '120px',
+          transition: 'font-size 0.2s ease-in-out',
+        },
+        outlined: {
+          border: '2px solid black',
+          color: 'black',
+          '&:hover': {
+            border: '2px solid black',
+            fontSize: '1.02em',
+          },
         }
       }
     }
