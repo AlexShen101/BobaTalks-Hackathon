@@ -17,10 +17,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import Snackbar from '@mui/material/Snackbar';
-import Alert from '@mui/material/Alert';
 
 import { useAuth } from '../context/AuthContext';
+import { useAlert } from '../context/AlertContext';
 import { useTheme } from '@mui/material/styles';
 
 const navLinks = [
@@ -42,13 +41,9 @@ function Navbar() {
   const navigate = useNavigate();
 
   const { user, logout } = useAuth();
+  const { showAlert } = useAlert();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
-
-  const handleCloseSnackbar = () => {
-    setSnackbarOpen(false);
-  };
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -63,9 +58,10 @@ function Navbar() {
       await logout();
       handleCloseMenu();
       navigate('/');
-      setSnackbarOpen(true);
+      showAlert('Successfully logged out', 'success');
     } catch (error) {
       console.error('Logout failed:', error);
+      showAlert('Failed to log out', 'error');
     }
   };
 
@@ -213,21 +209,6 @@ function Navbar() {
           </Toolbar>
         </AppBar>
       </Box>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: '100%' }}
-        >
-          Successfully logged out
-        </Alert>
-      </Snackbar>
     </>
   );
 }

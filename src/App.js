@@ -3,6 +3,7 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { AuthProvider } from "./context/AuthContext";
+import { AlertProvider } from "./context/AlertContext";
 
 import Home from "./pages/Home";
 import EventsPage from "./pages/EventsPage";
@@ -25,70 +26,72 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
-        <Router>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/EventsPage"
-              element={
-                <ProtectedRoute>
-                  <EventsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/EventsPage/:id"
-              element={
-                <ProtectedRoute>
-                  <ViewEventPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/donate/:id"
-              element={
-                <ProtectedRoute>
-                  <DonatePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/CreateEventPage"
-              element={
-                <ProtectedRoute>
-                  <CreateEventPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/BobaVendorsPage"
-              element={
-                <ProtectedRoute>
-                  <BobaVendorsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ManageEventPage"
-              element={
-                <ProtectedRoute>
-                  <ManageEventPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/ManageEventPage/EditEvent/:id"
-              element={
-                <ProtectedRoute>
-                  <EditEventPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/SignIn" element={<SignIn />} />
-            <Route path="/SignUp" element={<SignUp />} />
-          </Routes>
-        </Router>
+        <AlertProvider>
+          <Router>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/EventsPage"
+                element={
+                  <ProtectedRoute>
+                    <EventsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/EventsPage/:id"
+                element={
+                  <ProtectedRoute>
+                    <ViewEventPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/donate/:id"
+                element={
+                  <ProtectedRoute>
+                    <DonatePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/CreateEventPage"
+                element={
+                  <ProtectedRoute>
+                    <CreateEventPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/BobaVendorsPage"
+                element={
+                  <ProtectedRoute>
+                    <BobaVendorsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ManageEventPage"
+                element={
+                  <ProtectedRoute>
+                    <ManageEventPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/ManageEventPage/EditEvent/:id"
+                element={
+                  <ProtectedRoute>
+                    <EditEventPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/SignIn" element={<SignIn />} />
+              <Route path="/SignUp" element={<SignUp />} />
+            </Routes>
+          </Router>
+        </AlertProvider>
       </AuthProvider>
     </ThemeProvider>
   );
