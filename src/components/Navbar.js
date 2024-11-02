@@ -90,10 +90,10 @@ function Navbar() {
             )
           })
           : [
-            <ListItem key="Sign In" component={Link} href="/signin">
+            <ListItem key="Sign In" component={Link} to="/signin">
               <ListItemText primary="Sign In" />
             </ListItem>,
-            <ListItem key="Sign Up" component={Link} href="/signup">
+            <ListItem key="Sign Up" component={Link} to="/signup">
               <ListItemText primary="Sign Up" />
             </ListItem>,
           ]}
