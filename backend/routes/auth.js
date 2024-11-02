@@ -89,7 +89,7 @@ router.post(
         return next(err);
       }
       if (!user) {
-        return res.status(400).json({ msg: info.message });
+        return res.status(401).json({ msg: info.message });
       }
       req.logIn(user, (err) => {
         if (err) {

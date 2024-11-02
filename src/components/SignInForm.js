@@ -29,9 +29,17 @@ export default function SignInForm() {
     setLoading(true);
 
     try {
-      await login(formData);
-      showAlert('Login successful', 'success');
-      navigate('/');
+      const response = await login(formData);
+      
+      if (response.status === 200) {
+        showAlert('Login successful', 'success');
+        navigate('/');
+      } else if (
+        response.response?.status === 400 || 
+        response.response?.status === 401) 
+      {
+        showAlert('Invalid credentials', 'error');
+      }
     } catch (error) {
       showAlert(error.message || 'Failed to login', 'error');
     } finally {

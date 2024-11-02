@@ -26,13 +26,20 @@ export default function SignUpForm() {
       showAlert("Passwords do not match", "error");
       return;
     }
-
+    setLoading(true);
 
     try {
-      setLoading(true);
-      await signup({ email, password });
-      showAlert('Account created successfully', 'success');
-      navigate('/');
+      const response = await signup({ email, password });
+
+      if (response.status === 200) {
+        showAlert('Account created successfully', 'success');
+        navigate('/');
+      } else if (
+        response.response?.status === 400 ||
+        response.response?.status === 401
+      ) {
+        showAlert('Invalid credentials', 'error');
+      }
     } catch (err) {
       showAlert(err.message || 'Failed to create account');
     } finally {

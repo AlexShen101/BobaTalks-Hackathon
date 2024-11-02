@@ -10,17 +10,17 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    
+
     async function fetchUser() {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_ENDPOINT}/api/auth/me`, 
+          `${process.env.REACT_APP_API_ENDPOINT}/api/auth/me`,
           { withCredentials: true });
-        
+
         console.log(response)
 
         if (response.status === 200) {
-          let userData =  response.data.user;
+          let userData = response.data.user;
           setUser(userData)
           setLoading(false);
         }
@@ -37,48 +37,49 @@ export const AuthProvider = ({ children }) => {
   const signup = async (userData) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_ENDPOINT}/api/auth/signup`, userData);
+      return response;
     } catch (error) {
-      console.error('Signup error:', error.response ? error.response.data : error.message);
+      return error;
     }
   }
 
   const login = async (credentials) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_ENDPOINT}/api/auth/login`, 
+        `${process.env.REACT_APP_API_ENDPOINT}/api/auth/login`,
         credentials,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
 
-      console.log({ 'login response': response})
-      
       if (response.status === 200) {
-        let userData =  response.data.user;
+        let userData = response.data.user;
         setUser(userData)
       }
+      return response;
     } catch (error) {
-      console.error('Login error:', error.response ? error.response.data : error.message);
+      return error;
     }
   };
 
   const logout = async () => {
     try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_ENDPOINT}/api/auth/logout`,
-      {},  // empty body
-      { withCredentials: true }
-    );
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_ENDPOINT}/api/auth/logout`,
+        {},  // empty body
+        { withCredentials: true }
+      );
 
-    if (response.status === 200) {
-      setUser(null);
+      if (response.status === 200) {
+        setUser(null);
+      }
+      return response;
+    } catch (error) {
+      return error;
     }
-  } catch (error) {
-    console.error('Logout error:', error.response ? error.response.data : error.message);
-  }
   };
 
   return (
