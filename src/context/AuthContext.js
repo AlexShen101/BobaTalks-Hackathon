@@ -37,7 +37,15 @@ export const AuthProvider = ({ children }) => {
   const signup = async (userData) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_ENDPOINT}/api/auth/signup`, userData);
-      return response;
+      console.log(response);
+
+      if (response.status === 201) {
+        const response2 = await login(userData)
+        console.log(response2);
+        return response2;
+      } else {
+        console.log("error creating user?");
+      }
     } catch (error) {
       return error;
     }

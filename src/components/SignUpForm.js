@@ -30,6 +30,7 @@ export default function SignUpForm() {
 
     try {
       const response = await signup({ email, password });
+      console.log(response);
 
       if (response.status === 200) {
         showAlert('Account created successfully', 'success');
@@ -101,6 +102,7 @@ export default function SignUpForm() {
           <TextField
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            type="password"
             sx={{
               mt: 1,
               border: "2px solid",
@@ -115,6 +117,7 @@ export default function SignUpForm() {
           <TextField
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            type="password"
             sx={{
               mt: 1,
               border: "2px solid",

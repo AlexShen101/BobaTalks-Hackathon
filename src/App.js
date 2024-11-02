@@ -15,6 +15,7 @@ import EditEventPage from "./pages/EditEventsPage";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ViewEventPage from "./pages/ViewEventPage";
+import OrganizerSignup from "./pages/OrganizerSignup";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
@@ -87,6 +88,7 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route path='Organizer-Signup' element={<OrganizerSignup />} />
               <Route path="/SignIn" element={<SignIn />} />
               <Route path="/SignUp" element={<SignUp />} />
             </Routes>

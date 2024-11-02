@@ -96,27 +96,21 @@ router.get("/:id", isAuthenticated, async (req, res) => {
     let endDate = new Date(result.endDate);
     let organizerIds = result.organizerIds.map(id => id.toString());
 
-    const userIdString = user._id.toString();
-
-    if (organizerIds.includes(userIdString)) {
-      if (endDate < today) {
-        return res.status(404).send("The event has passed!");
-      } else {
-        let currAmt = result.currentMoney;
-        let targetAmt = result.goalAmount;
-
-        if (currAmt >= targetAmt) {
-          return res.status(404).send("The target amount has been reached!");
-        } else {
-          let organizers = await User.find({ _id: { $in: organizerIds } }, 'email');
-          // map organizers to get their emails
-          organizers = organizers.map(user => user.email);
-          result.organizers = organizers;
-          return res.status(200).send(result);
-        }
-      }
+    if (endDate < today) {
+      return res.status(404).send("The event has passed!");
     } else {
-      return res.status(404).send("Not found");
+      let currAmt = result.currentMoney;
+      let targetAmt = result.goalAmount;
+
+      if (currAmt >= targetAmt) {
+        return res.status(404).send("The target amount has been reached!");
+      } else {
+        let organizers = await User.find({ _id: { $in: organizerIds } }, 'email');
+        // map organizers to get their emails
+        organizers = organizers.map(user => user.email);
+        result.organizers = organizers;
+        return res.status(200).send(result);
+      }
     }
   } catch (err) {
     console.error(err);

@@ -23,7 +23,10 @@ import { useAlert } from '../context/AlertContext';
 import { useTheme } from '@mui/material/styles';
 
 const navLinks = [
-  { title: 'All Events', path: '/EventsPage' },
+  {
+    title: 'All Events', path: '/EventsPage',
+    allowedRoles: ['organizer', 'donator', 'admin']
+  },
   {
     title: 'Create Event', path: '/CreateEventPage',
     allowedRoles: ['organizer']
@@ -32,7 +35,14 @@ const navLinks = [
     title: 'Manage Event', path: '/ManageEventPage',
     allowedRoles: ['organizer']
   },
-  { title: 'See Boba Vendors', path: '/BobaVendorsPage' },
+  {
+    title: 'See Boba Vendors', path: '/BobaVendorsPage',
+    allowedRoles: ['organizer', 'donator', 'admin']
+  },
+  {
+    title: 'Become an Organizer', path: '/Organizer-Signup',
+    allowedRoles: ['donator']
+  }
 ]
 
 function Navbar() {
@@ -143,19 +153,26 @@ function Navbar() {
             ) : (
               // Desktop View: Inline Links
               user ? (
-                navLinks.map((item) => (
-                  <Button
-                    key={item.title}
-                    color="inherit"
-                    component={Link}
-                    to={item.path}
-                    sx={{
-                      fontFamily: 'Poppins, sans-serif',
-                    }}
-                  >
-                    {item.title}
-                  </Button>
-                ))
+                navLinks.map((item) => {
+
+                  if (user.role != 'admin' && !item.allowedRoles.includes(user.role)) {
+                    return null;
+                  }
+
+                  return (
+                    <Button
+                      key={item.title}
+                      color="inherit"
+                      component={Link}
+                      to={item.path}
+                      sx={{
+                        fontFamily: 'Poppins, sans-serif',
+                      }}
+                    >
+                      {item.title}
+                    </Button>
+                  )
+                })
               ) : (
                 <>
                   <Button
