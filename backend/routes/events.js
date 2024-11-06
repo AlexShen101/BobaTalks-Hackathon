@@ -2,6 +2,7 @@ import express from "express";
 import Event from "../models/Event.js";
 import User from "../models/User.js";
 import { isAuthenticated } from "../middleware/auth.js";
+import { generateEmbedding, upsertToPinecone, searchSimilarEvents, deleteFromPinecone } from '../services/pineconeService.js';
 
 const router = express.Router();
 
@@ -51,9 +52,9 @@ router.get("/user", isAuthenticated, async (req, res) => {
 
     if (!user) return res.status(404).send("User not found");
 
-    const events = await Event.find({ 
+    const events = await Event.find({
       organizerIds: user._id,
-      toDelete: { $ne: true }, 
+      toDelete: { $ne: true },
     }).lean();
 
     if (!events) return res.status(404).send("No events found.");
@@ -152,8 +153,20 @@ router.post("/", isAuthenticated, async (req, res) => {
     });
 
     // Save the new event to the database
-    const result = await newEvent.save();
-    res.status(201).send(result);
+    const savedEvent = await newEvent.save();
+
+    // pinecone embedding stuff
+    const contentForEmbedding = `${eventName} ${description}`;
+    const embedding = await generateEmbedding(contentForEmbedding);
+
+    await upsertToPinecone(savedEvent._id, embedding, {
+      eventName,
+      description,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    });
+
+    res.status(201).send(savedEvent);
   } catch (error) {
     // If Mongoose throws a validation error, catch it and return a 400 bad request
     if (error.name === "ValidationError") {
@@ -162,6 +175,44 @@ router.post("/", isAuthenticated, async (req, res) => {
       // For other types of errors, return a 500 internal server error
       return res.status(500).send({ error: "Internal server error" });
     }
+  }
+});
+
+
+/**
+ * Perform pinecone semantic search for events
+ */
+router.get("/search", isAuthenticated, async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
+
+    // Search in Pinecone
+    const searchResults = await searchSimilarEvents(query);
+    
+    // Get full event details from MongoDB
+    const eventIds = searchResults.map(result => result.id);
+    const events = await Event.find({ 
+      _id: { $in: eventIds },
+      toDelete: { $ne: true } 
+    });
+
+    // Add organizers
+    const eventsWithOrganizers = await Promise.all(events.map(async (event) => {
+      const organizers = await User.find({ _id: { $in: event.organizerIds } }, 'email');
+      return {
+        ...event.toObject(),
+        organizers: organizers.map(user => user.email),
+        score: searchResults.find(r => r.id === event._id.toString())?.score
+      };
+    }));
+
+    res.json(eventsWithOrganizers);
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({ error: "Error performing search" });
   }
 });
 
@@ -211,10 +262,10 @@ router.put("/:id", isAuthenticated, async (req, res) => {
 router.put("/donate/:id", async (req, res) => {
   const user = req.user;
   const eventId = req.params.id;
-  let { 
+  let {
     anonymous,
     donation_amount,
-    thank_you_note 
+    thank_you_note
   } = req.body;
 
   if (!donation_amount) {
@@ -265,7 +316,7 @@ router.delete("/:id", isAuthenticated, async (req, res) => {
 
   try {
     const event = await Event.findById(eventId);
-    
+
     if (!event) {
       return res.status(404).send({ error: "Event not found" });
     }
@@ -277,6 +328,8 @@ router.delete("/:id", isAuthenticated, async (req, res) => {
 
     event.toDelete = true;
     await event.save();
+
+    await deleteFromPinecone(eventId);
 
     res.status(200).send({ message: "Event marked for deletion successfully" });
   } catch (err) {
