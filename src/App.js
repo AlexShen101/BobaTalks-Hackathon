@@ -16,12 +16,69 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ViewEventPage from "./pages/ViewEventPage";
 import OrganizerSignup from "./pages/OrganizerSignup";
+import SemanticSearchPage from "./pages/SemanticSearchPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 
 import theme from "./theme";
 import { ThemeProvider } from "@mui/material/styles";
+
+const routes = [
+  { path: "/", element: <Home /> },
+  {
+    path: "/EventsPage",
+    element: <EventsPage />,
+    protected: true
+  },
+  {
+    path: "/EventsPage/:id",
+    element: <ViewEventPage />,
+    protected: true
+  },
+  {
+    path: "/donate/:id",
+    element: <DonatePage />,
+    protected: true
+  },
+  {
+    path: "/CreateEventPage",
+    element: <CreateEventPage />,
+    protected: true
+  },
+  {
+    path: "/BobaVendorsPage",
+    element: <BobaVendorsPage />,
+    protected: true
+  },
+  {
+    path: "/ManageEventPage",
+    element: <ManageEventPage />,
+    protected: true
+  },
+  {
+    path: "/ManageEventPage/EditEvent/:id",
+    element: <EditEventPage />,
+    protected: true
+  },
+  {
+    path: "/SemanticSearch",
+    element: <SemanticSearchPage />,
+    protected: true
+  },
+  {
+    path: "/Organizer-Signup",
+    element: <OrganizerSignup />
+  },
+  {
+    path: "/SignIn",
+    element: <SignIn />
+  },
+  {
+    path: "/SignUp",
+    element: <SignUp />
+  }
+]
 
 const App = () => {
   return (
@@ -31,66 +88,13 @@ const App = () => {
           <Router>
             <Navbar />
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route
-                path="/EventsPage"
-                element={
-                  <ProtectedRoute>
-                    <EventsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/EventsPage/:id"
-                element={
-                  <ProtectedRoute>
-                    <ViewEventPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/donate/:id"
-                element={
-                  <ProtectedRoute>
-                    <DonatePage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/CreateEventPage"
-                element={
-                  <ProtectedRoute>
-                    <CreateEventPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/BobaVendorsPage"
-                element={
-                  <ProtectedRoute>
-                    <BobaVendorsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ManageEventPage"
-                element={
-                  <ProtectedRoute>
-                    <ManageEventPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/ManageEventPage/EditEvent/:id"
-                element={
-                  <ProtectedRoute>
-                    <EditEventPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path='Organizer-Signup' element={<OrganizerSignup />} />
-              <Route path="/SignIn" element={<SignIn />} />
-              <Route path="/SignUp" element={<SignUp />} />
+              {routes.map(({ path, element, protected: isProtected }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={isProtected ? <ProtectedRoute>{element}</ProtectedRoute> : element}
+                />
+              ))}
             </Routes>
           </Router>
         </AlertProvider>
