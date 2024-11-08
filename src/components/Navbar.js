@@ -246,9 +246,6 @@ function Navbar() {
                   onClose={handleCloseMenu}
                 >
                   <MenuItem disabled>
-                    <Typography variant="body1">{user.fullName}</Typography>
-                  </MenuItem>
-                  <MenuItem disabled>
                     <Typography variant="body2" color="text.secondary">
                       {user.email}
                     </Typography>
