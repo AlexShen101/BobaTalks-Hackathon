@@ -17,6 +17,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useAuth } from '../context/AuthContext';
 import { useAlert } from '../context/AlertContext';
@@ -54,6 +55,7 @@ function Navbar() {
   const { showAlert } = useAlert();
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -65,6 +67,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     try {
+      setIsLoggingOut(true);
       await logout();
       handleCloseMenu();
       navigate('/');
@@ -72,6 +75,8 @@ function Navbar() {
     } catch (error) {
       console.error('Logout failed:', error);
       showAlert('Failed to log out', 'error');
+    } finally {
+      setIsLoggingOut(false);
     }
   };
 
@@ -113,10 +118,37 @@ function Navbar() {
 
   return (
     <>
+      {/* overlay the full screen when logging out */}
+      {isLoggingOut && (
+        <Box
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)', // semi-transparent white
+            zIndex: 9999, // ensure it's above everything
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <CircularProgress size={60} />
+          <Typography
+            variant="h6"
+            sx={{ mt: 2, fontFamily: 'Poppins, sans-serif' }}
+          >
+            Logging out...
+          </Typography>
+        </Box>
+      )}
+
+
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static" color="primary"> {/* Uses primary color from theme */}
           <Toolbar>
-            {/* Logo or Brand Name */}
             <Typography
               variant="h6"
               component={Link}
@@ -199,7 +231,6 @@ function Navbar() {
               )
             )}
 
-            {/* Add this user menu section */}
             {user && (
               <div>
                 <IconButton
@@ -214,6 +245,14 @@ function Navbar() {
                   open={Boolean(anchorEl)}
                   onClose={handleCloseMenu}
                 >
+                  <MenuItem disabled>
+                    <Typography variant="body1">{user.fullName}</Typography>
+                  </MenuItem>
+                  <MenuItem disabled>
+                    <Typography variant="body2" color="text.secondary">
+                      {user.email}
+                    </Typography>
+                  </MenuItem>
                   <MenuItem component={Link} to="/account-settings">
                     Account Settings
                   </MenuItem>
