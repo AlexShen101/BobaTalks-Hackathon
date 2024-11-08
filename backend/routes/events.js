@@ -84,6 +84,9 @@ router.get("/search", isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Search query is required" });
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     // Search in Pinecone
     const searchResults = await searchSimilarEvents(query);
     
@@ -91,9 +94,13 @@ router.get("/search", isAuthenticated, async (req, res) => {
     const eventIds = searchResults.map(result => result.id);
     const events = await Event.find({ 
       _id: { $in: eventIds },
-      toDelete: { $ne: true } 
+      toDelete: { $ne: true },
+      endDate: { $gte: today },
+      $expr: {
+        $lt: ["$currentMoney", "$goalAmount"]
+      }
     });
-
+    
     // Add organizers
     const eventsWithOrganizers = await Promise.all(events.map(async (event) => {
       const organizers = await User.find({ _id: { $in: event.organizerIds } }, 'email');
