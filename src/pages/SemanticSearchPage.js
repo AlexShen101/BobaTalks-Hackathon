@@ -120,8 +120,7 @@ export default function SemanticSearchPage() {
             )
           ) : (
             <Typography variant="body1" sx={{ mt: 4, color: 'text.secondary' }}>
-              Try searching for events using natural language, like "outdoor sports events in the evening" 
-              or "networking events about technology"
+              Try searching for events using natural language!
             </Typography>
           )}
         </Grid>
