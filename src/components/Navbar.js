@@ -152,7 +152,7 @@ function Navbar() {
             <Typography
               variant="h6"
               component={Link}
-              to="/"
+              to={user ? "/dashboard" : "/"}
               sx={{
                 textDecoration: 'none',
                 color: 'inherit',

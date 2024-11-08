@@ -17,7 +17,7 @@ import SignUp from "./pages/SignUp";
 import ViewEventPage from "./pages/ViewEventPage";
 import OrganizerSignup from "./pages/OrganizerSignup";
 import SemanticSearchPage from "./pages/SemanticSearchPage";
-
+import DashboardPage from "./pages/DashboardPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 
@@ -26,6 +26,11 @@ import { ThemeProvider } from "@mui/material/styles";
 
 const routes = [
   { path: "/", element: <Home /> },
+  {
+    path: "/dashboard",
+    element: <DashboardPage />,
+    protected: true
+  },
   {
     path: "/EventsPage",
     element: <EventsPage />,
