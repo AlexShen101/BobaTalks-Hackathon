@@ -8,6 +8,7 @@ import '../styles/Card.css'
 
 export default function EventsPage() {
   const [events, setEvents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -31,6 +32,11 @@ export default function EventsPage() {
 
     fetchEvents();
   }, []);
+
+  // Add this function to filter events
+  const filteredEvents = events.filter(event =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <>
@@ -61,10 +67,24 @@ export default function EventsPage() {
           Upcoming Events
         </Typography>
 
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '12px',
+            marginBottom: '20px',
+            borderRadius: '4px',
+            border: '1px solid #ccc',
+            fontSize: '16px'
+          }}
+        />
 
         <Grid container spacing={3} justifyContent="center">
-          {events && events.length > 0 ? (
-            events.map((event, index) => (
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map((event, index) => (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <EventCard event={event} manageEventView={false} />
               </Grid>
