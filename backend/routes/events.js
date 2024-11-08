@@ -75,6 +75,43 @@ router.get("/user", isAuthenticated, async (req, res) => {
 });
 
 /**
+ * Perform pinecone semantic search for events
+ */
+router.get("/search", isAuthenticated, async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(400).json({ error: "Search query is required" });
+    }
+
+    // Search in Pinecone
+    const searchResults = await searchSimilarEvents(query);
+    
+    // Get full event details from MongoDB
+    const eventIds = searchResults.map(result => result.id);
+    const events = await Event.find({ 
+      _id: { $in: eventIds },
+      toDelete: { $ne: true } 
+    });
+
+    // Add organizers
+    const eventsWithOrganizers = await Promise.all(events.map(async (event) => {
+      const organizers = await User.find({ _id: { $in: event.organizerIds } }, 'email');
+      return {
+        ...event.toObject(),
+        organizers: organizers.map(user => user.email),
+        score: searchResults.find(r => r.id === event._id.toString())?.score
+      };
+    }));
+
+    res.json(eventsWithOrganizers);
+  } catch (error) {
+    console.error('Search error:', error);
+    res.status(500).json({ error: "Error performing search" });
+  }
+});
+
+/**
  * Get a single event by ID
  */
 router.get("/:id", isAuthenticated, async (req, res) => {
@@ -175,44 +212,6 @@ router.post("/", isAuthenticated, async (req, res) => {
       // For other types of errors, return a 500 internal server error
       return res.status(500).send({ error: "Internal server error" });
     }
-  }
-});
-
-
-/**
- * Perform pinecone semantic search for events
- */
-router.get("/search", isAuthenticated, async (req, res) => {
-  try {
-    const { query } = req.query;
-    if (!query) {
-      return res.status(400).json({ error: "Search query is required" });
-    }
-
-    // Search in Pinecone
-    const searchResults = await searchSimilarEvents(query);
-    
-    // Get full event details from MongoDB
-    const eventIds = searchResults.map(result => result.id);
-    const events = await Event.find({ 
-      _id: { $in: eventIds },
-      toDelete: { $ne: true } 
-    });
-
-    // Add organizers
-    const eventsWithOrganizers = await Promise.all(events.map(async (event) => {
-      const organizers = await User.find({ _id: { $in: event.organizerIds } }, 'email');
-      return {
-        ...event.toObject(),
-        organizers: organizers.map(user => user.email),
-        score: searchResults.find(r => r.id === event._id.toString())?.score
-      };
-    }));
-
-    res.json(eventsWithOrganizers);
-  } catch (error) {
-    console.error('Search error:', error);
-    res.status(500).json({ error: "Error performing search" });
   }
 });
 

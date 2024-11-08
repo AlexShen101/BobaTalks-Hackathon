@@ -61,12 +61,13 @@ export async function upsertToPinecone(eventId, embedding, metadata) {
 export async function searchSimilarEvents(query, topK = 5) {
   try {
     const queryEmbedding = await generateEmbedding(query);
-    
     const searchResults = await index.query({
       vector: queryEmbedding,
       topK,
       includeMetadata: true
     });
+
+    console.log(searchResults)
 
     return searchResults.matches;
   } catch (error) {
